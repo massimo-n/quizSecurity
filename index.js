@@ -2,9 +2,9 @@
 'use strict';
 
 const state = {
-    currentScreen: 'categorySelection', // 'categorySelection', 'quiz', 'results'
+    currentScreen: 'welcome', // welcome, quiz, results
     language: 'it', // 'it', 'en'
-    currentCategoryKey: null,
+    currentCategoryKey: 'mixed', // Categoria mista
     currentQuestionIndex: 0,
     questions: [],
     userAnswers: [],
@@ -129,9 +129,31 @@ const QUIZ_DATA_EN = {
     }
 };
 
+// Mappa le categorie ai nomi con emoji
+function getCategoryDisplayName(categoryKey, language) {
+    const categoryNames = {
+        it: {
+            office: "🏢 Ufficio",
+            construction: "🚧 Cantiere", 
+            laboratory: "🧪 Laboratorio",
+            home: "🏠 Casa"
+        },
+        en: {
+            office: "🏢 Office",
+            construction: "🚧 Construction Site",
+            laboratory: "🧪 Laboratory", 
+            home: "🏠 Home"
+        }
+    };
+    return categoryNames[language][categoryKey] || categoryKey;
+}
+
 const uiStrings = {
     it: {
         mainTitle: "Safety Challenge",
+        welcomeSubtitle: "Quiz sulla Sicurezza",
+        welcomeText: "Mettiti alla prova con 4 domande casuali da diverse categorie di sicurezza. Dimostra di non essere un pericolo per te e per gli altri... 😅",
+        startQuizButton: "🚀 Inizia il Quiz",
         introText: "Seleziona una categoria e mettiti alla prova. Dimostra di non essere un pericolo per te e per gli altri... 😅",
         startQuiz: "Inizia la sfida!",
         questionProgress: (current, total) => `Domanda ${current} di ${total}`,
@@ -142,7 +164,7 @@ const uiStrings = {
         score: "Punteggio:",
         resultMessages: {
             low: "OPS... 😅 Forse è il caso di iscriverti al corso di laurea TEPAL. Fidati, è per il bene di tutti.",
-            medium: "Non male! 🔥 Te la cavi, ma puoi sempre migliorare. Dai un'occhiata ai corsi Univaq!",
+            medium: "Non male! 🔥 Te la cavi, ma puoi sempre migliorare. Dai un'occhiata aL corsO TEPAL Univaq!",
             high: "BELLA BRO! 👑 Sei un professionista. Laurea ad honorem in sicurezza per te!"
         },
         playAgain: "Scegli un'altra sfida",
@@ -150,6 +172,9 @@ const uiStrings = {
     },
     en: {
         mainTitle: "Safety Challenge",
+        welcomeSubtitle: "Safety Quiz",
+        welcomeText: "Test yourself with 4 random questions from different safety categories. Prove you're not a danger to yourself and others... 😅",
+        startQuizButton: "🚀 Start Quiz",
         introText: "Select a category and test yourself. Prove you're not a danger to yourself and others... 😅",
         startQuiz: "Start the challenge!",
         questionProgress: (current, total) => `Question ${current} of ${total}`,
@@ -160,7 +185,7 @@ const uiStrings = {
         score: "Score:",
         resultMessages: {
             low: "OOPS... 😅 Maybe you should enroll in the TEPAL degree program. Trust us, it's for everyone's sake.",
-            medium: "Not bad! 🔥 You know your stuff, but you can always improve. Check out the Univaq courses!",
+            medium: "Not bad! 🔥 You know your stuff, but you can always improve. Check out the Univaq TEPAL course!",
             high: "NICE ONE, BRO! 👑 You're a pro. Honorary degree in safety for you!"
         },
         playAgain: "Choose another challenge",
@@ -179,6 +204,9 @@ function render() {
     appContainer.style.animation = 'fadeIn 0.5s ease-out';
 
     switch (state.currentScreen) {
+        case 'welcome':
+            renderWelcome();
+            break;
         case 'categorySelection':
             renderCategorySelection();
             break;
@@ -190,6 +218,44 @@ function render() {
             break;
     }
     renderFooter();
+}
+
+function renderWelcome() {
+    const strings = uiStrings[state.language];
+
+    appContainer.innerHTML = `
+        <div class="header-with-lang">
+            <div class="logo-container">
+                <img src="./LOGO-Universita-degli-Studi-dellAquila.png" alt="Università degli Studi dell'Aquila" class="logo-img">
+            </div>
+            <div class="lang-switcher-header">
+                <button id="lang-it" class="lang-btn ${state.language === 'it' ? 'active' : ''}">🇮🇹 IT</button>
+                <button id="lang-en" class="lang-btn ${state.language === 'en' ? 'active' : ''}">🇬🇧 EN</button>
+            </div>
+        </div>
+        <div class="welcome-content">
+            <h1>${strings.mainTitle}</h1>
+            <h2 class="welcome-subtitle">${strings.welcomeSubtitle}</h2>
+            <p class="welcome-text">${strings.welcomeText}</p>
+            <div class="welcome-actions">
+                <button class="action-btn start-quiz-btn" id="start-quiz-btn">${strings.startQuizButton}</button>
+            </div>
+            <div class="pdf-section">
+                <button class="pdf-btn" onclick="window.open('tepal_simple.html?lang=${state.language}&from=app', '_blank')">
+                    📄 ${state.language === 'it' ? 'Scarica Brochure TEPAL' : 'Download TEPAL Brochure'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Event listeners
+    document.getElementById('start-quiz-btn').addEventListener('click', () => {
+        createMixedQuiz();
+        render();
+    });
+
+    document.getElementById('lang-it').addEventListener('click', () => handleLangChange('it'));
+    document.getElementById('lang-en').addEventListener('click', () => handleLangChange('en'));
 }
 
 function renderCategorySelection() {
@@ -269,11 +335,15 @@ function renderQuiz() {
             </div>
             <div class="quiz-controls">
                 <button id="home-btn" class="home-btn">${strings.backToHome}</button>
+                <button id="pdf-btn-quiz" class="pdf-btn-small">📄</button>
                 <div class="lang-switcher-header">
                     <button id="lang-it" class="lang-btn ${state.language === 'it' ? 'active' : ''}">🇮🇹</button>
                     <button id="lang-en" class="lang-btn ${state.language === 'en' ? 'active' : ''}">🇬🇧</button>
                 </div>
             </div>
+        </div>
+        <div class="question-info">
+            <span class="category-badge">${getCategoryDisplayName(question.category, state.language)}</span>
         </div>
         <h2>${question.question}</h2>
         <div class="answers-grid">
@@ -292,6 +362,9 @@ function renderQuiz() {
     document.getElementById('prev-btn').addEventListener('click', () => handleNav('prev'));
     document.getElementById('next-btn').addEventListener('click', () => handleNav('next'));
     document.getElementById('home-btn').addEventListener('click', () => handleBackToHome());
+    document.getElementById('pdf-btn-quiz').addEventListener('click', () => {
+        window.open(`tepal_simple.html?lang=${state.language}&from=app`, '_blank');
+    });
     
     // Aggiungi event listeners per la lingua
     document.getElementById('lang-it').addEventListener('click', () => handleLangChange('it'));
@@ -299,10 +372,8 @@ function renderQuiz() {
 }
 
 function renderResults() {
-    const data = state.language === 'it' ? QUIZ_DATA_IT : QUIZ_DATA_EN;
     const strings = uiStrings[state.language];
-    const categoryName = data[state.currentCategoryKey].name;
-
+    
     let message = '';
     const score = state.score;
     
@@ -315,25 +386,30 @@ function renderResults() {
     }
 
     appContainer.innerHTML = `
-        <div class="results-header-with-lang">
-            <button id="home-btn" class="home-btn">${strings.backToHome}</button>
-            <div class="lang-switcher-header">
-                <button id="lang-it" class="lang-btn ${state.language === 'it' ? 'active' : ''}">🇮🇹</button>
-                <button id="lang-en" class="lang-btn ${state.language === 'en' ? 'active' : ''}">🇬🇧</button>
+        <div class="results-screen">
+            <div class="results-header-with-lang">
+                <button id="home-btn" class="home-btn">${strings.backToHome}</button>
+                <button id="pdf-btn-results" class="pdf-btn-small">📄</button>
+                <div class="lang-switcher-header">
+                    <button id="lang-it" class="lang-btn ${state.language === 'it' ? 'active' : ''}">🇮🇹</button>
+                    <button id="lang-en" class="lang-btn ${state.language === 'en' ? 'active' : ''}">🇬🇧</button>
+                </div>
             </div>
+            <h1>${strings.mixedQuizResults || (state.language === 'it' ? 'Risultati Quiz Sicurezza' : 'Safety Quiz Results')}</h1>
+            <p class="result-score">${strings.score} ${state.score} / ${state.questions.length}</p>
+            <p class="result-message">${message}</p>
+            <button class="action-btn" id="play-again-btn">${strings.playAgain}</button>
         </div>
-        <h1>${strings.resultsFor(categoryName)}</h1>
-        <p class="result-score">${strings.score} ${state.score} / ${state.questions.length}</p>
-        <p class="result-message">${message}</p>
-        <button class="action-btn" id="play-again-btn">${strings.playAgain}</button>
     `;
 
     document.getElementById('play-again-btn').addEventListener('click', () => {
-        state.currentScreen = 'categorySelection';
-        render();
+        handleBackToHome(); // Riavvia con nuovo quiz misto
     });
     
     document.getElementById('home-btn').addEventListener('click', () => handleBackToHome());
+    document.getElementById('pdf-btn-results').addEventListener('click', () => {
+        window.open(`tepal_simple.html?lang=${state.language}&from=app`, '_blank');
+    });
     
     // Aggiungi event listeners per la lingua
     document.getElementById('lang-it').addEventListener('click', () => handleLangChange('it'));
@@ -344,6 +420,34 @@ function renderFooter() {
      footerContainer.innerHTML = `
         <p>&copy; 2024 Università degli Studi dell'Aquila</p>
     `;
+}
+
+// Funzione per creare un quiz misto con 4 domande casuali da tutte le categorie
+function createMixedQuiz() {
+    const data = state.language === 'it' ? QUIZ_DATA_IT : QUIZ_DATA_EN;
+    
+    // Raccoglie tutte le domande da tutte le categorie
+    const allQuestions = [];
+    Object.keys(data).forEach(categoryKey => {
+        data[categoryKey].questions.forEach(question => {
+            allQuestions.push({
+                ...question,
+                category: categoryKey  // Usa la chiave invece del nome
+            });
+        });
+    });
+    
+    // Seleziona 4 domande casuali dal pool totale
+    const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random());
+    state.questions = shuffledQuestions.slice(0, 4);
+    
+    // Mescola le risposte per ogni domanda selezionata
+    state.questions.forEach(q => q.answers.sort(() => 0.5 - Math.random()));
+
+    state.currentQuestionIndex = 0;
+    state.userAnswers = new Array(state.questions.length).fill(null);
+    state.score = 0;
+    state.currentScreen = 'quiz';
 }
 
 function handleCategorySelect(key) {
@@ -420,17 +524,17 @@ function handleLangChange(lang) {
 }
 
 function handleBackToHome() {
-    // Reset dello stato del quiz
-    state.currentScreen = 'categorySelection';
-    state.currentCategoryKey = null;
-    state.currentQuestionIndex = 0;
+    // Torna alla schermata di benvenuto
+    state.currentScreen = 'welcome';
     state.questions = [];
+    state.currentQuestionIndex = 0;
     state.userAnswers = [];
     state.score = 0;
     render();
 }
 
 function init() {
+    // Inizia con la schermata di benvenuto
     render();
 }
 

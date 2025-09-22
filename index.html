@@ -365,6 +365,73 @@
             line-height: 1.5;
         }
 
+        /* Welcome Screen */
+        .welcome-content {
+            text-align: center;
+            padding: clamp(20px, 5vw, 40px) 0;
+        }
+
+        .welcome-content h1 {
+            color: var(--accent-color);
+            font-size: clamp(2em, 6vw, 3.5em);
+            margin-bottom: clamp(8px, 2vw, 12px);
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .welcome-subtitle {
+            color: #ccc;
+            font-size: clamp(1.2em, 4vw, 1.8em);
+            font-weight: 300;
+            margin-bottom: clamp(20px, 5vw, 30px);
+        }
+
+        .welcome-text {
+            color: #ddd;
+            font-size: clamp(1em, 3.5vw, 1.2em);
+            line-height: 1.6;
+            margin-bottom: clamp(30px, 6vw, 40px);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .welcome-actions {
+            margin-bottom: clamp(30px, 6vw, 40px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .start-quiz-btn {
+            background: linear-gradient(90deg, var(--accent-color), #a040f0);
+            color: white;
+            border: none;
+            padding: clamp(16px, 4vw, 20px) clamp(32px, 8vw, 48px);
+            border-radius: clamp(12px, 3vw, 16px);
+            font-family: var(--font-family);
+            font-size: clamp(1.1em, 4vw, 1.4em);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px var(--primary-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .start-quiz-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--primary-glow);
+            background: linear-gradient(90deg, #c054ff, #b040f0);
+        }
+
+        .start-quiz-btn:active {
+            transform: translateY(-1px);
+        }
+
         .quiz-header {
             margin-bottom: clamp(18px, 4vw, 20px);
         }
@@ -441,16 +508,24 @@
         
         .navigation-container {
             display: flex;
-            justify-content: space-between;
-            gap: clamp(10px, 3vw, 15px);
+            justify-content: center;
+            gap: clamp(15px, 4vw, 20px);
             margin-top: clamp(25px, 6vw, 30px);
             flex-wrap: wrap;
+            align-items: center;
         }
 
         @media (max-width: 480px) {
             .navigation-container {
                 flex-direction: column;
                 gap: 15px;
+                align-items: stretch;
+            }
+            
+            .navigation-container .action-btn {
+                width: 100%;
+                max-width: 280px;
+                margin: 0 auto;
             }
         }
 
@@ -514,6 +589,23 @@
             margin: clamp(8px, 2vw, 10px) 0;
             color: var(--accent-color);
             line-height: 1.2;
+            text-align: center;
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: clamp(1em, 3.5vw, 1.2em);
+            line-height: 1.6;
+            margin: clamp(20px, 5vw, 30px) 0;
+            color: #ddd;
+        }
+
+        /* Centramento pulsante gioca ancora */
+        .results-screen .action-btn {
+            display: block;
+            margin: clamp(25px, 6vw, 35px) auto 0 auto;
+            max-width: 280px;
+            width: 100%;
         }
 
         .footer {
@@ -560,6 +652,37 @@
             .category-card {
                 min-height: clamp(140px, 20vw, 180px);
                 padding: clamp(15px, 4vw, 20px);
+            }
+            
+            /* Welcome screen mobile optimization */
+            .welcome-content {
+                padding: clamp(15px, 4vw, 30px) 0;
+            }
+            
+            .welcome-text {
+                font-size: clamp(0.95em, 3.2vw, 1.1em);
+                padding: 0 10px;
+            }
+            
+            .start-quiz-btn {
+                font-size: clamp(1em, 3.5vw, 1.2em);
+                padding: clamp(14px, 3.5vw, 18px) clamp(28px, 7vw, 40px);
+            }
+            
+            /* Quiz controls mobile optimization */
+            .quiz-header-with-lang {
+                padding: 0 5px;
+            }
+            
+            .quiz-controls {
+                gap: clamp(6px, 1.5vw, 10px);
+            }
+            
+            /* PDF button mobile */
+            .pdf-btn-small {
+                min-width: clamp(36px, 9vw, 44px);
+                height: clamp(36px, 9vw, 44px);
+                font-size: clamp(0.9em, 2.8vw, 1.1em);
             }
         }
 
@@ -767,6 +890,24 @@
             width: 100%;
         }
 
+        /* Category Badge */
+        .question-info {
+            text-align: center;
+            margin: clamp(10px, 3vw, 15px) 0;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, rgba(180, 83, 255, 0.2), rgba(58, 134, 255, 0.2));
+            color: var(--accent-color);
+            padding: clamp(4px, 1vw, 6px) clamp(12px, 3vw, 16px);
+            border-radius: clamp(15px, 4vw, 20px);
+            font-size: clamp(0.75em, 2.5vw, 0.85em);
+            font-weight: 600;
+            border: 1px solid rgba(180, 83, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
         .pdf-btn {
             background: linear-gradient(90deg, #3a86ff, #2563eb);
             color: white;
@@ -798,28 +939,61 @@
             box-shadow: 0 2px 10px rgba(58, 134, 255, 0.2);
         }
 
+        .pdf-btn-small {
+            background: linear-gradient(90deg, #3a86ff, #2563eb);
+            color: white;
+            border: none;
+            padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2.5vw, 12px);
+            border-radius: clamp(6px, 1.5vw, 8px);
+            font-family: var(--font-family);
+            font-size: clamp(0.8em, 2.5vw, 1em);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(58, 134, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(58, 134, 255, 0.2);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: clamp(32px, 8vw, 40px);
+            height: clamp(32px, 8vw, 40px);
+        }
+
+        .pdf-btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(58, 134, 255, 0.3);
+            background: linear-gradient(90deg, #4a96ff, #3673ff);
+        }
+
+        .pdf-btn-small:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(58, 134, 255, 0.2);
+        }
+
         /* Mobile touch optimizations */
         @media (hover: none) and (pointer: coarse) {
             /* Ensure all interactive elements have proper touch targets */
-            button, .btn, .category-button, .action-btn, .pdf-btn {
+            button, .btn, .category-button, .action-btn, .pdf-btn, .pdf-btn-small, .start-quiz-btn {
                 min-height: 44px;
                 touch-action: manipulation;
             }
             
             /* Remove hover effects that don't work on touch */
-            button:hover, .btn:hover, .category-button:hover, .pdf-btn:hover {
+            button:hover, .btn:hover, .category-button:hover, .pdf-btn:hover, .pdf-btn-small:hover, .start-quiz-btn:hover {
                 transform: none;
                 box-shadow: none;
             }
             
             /* Add active states for touch feedback */
-            button:active, .btn:active, .category-button:active, .pdf-btn:active {
+            button:active, .btn:active, .category-button:active, .pdf-btn:active, .pdf-btn-small:active, .start-quiz-btn:active {
                 transform: scale(0.96);
                 background: linear-gradient(90deg, var(--accent-color), #a040f0);
                 transition: transform 0.1s ease;
             }
 
-            .pdf-btn:active {
+            .pdf-btn:active, .pdf-btn-small:active {
                 background: linear-gradient(90deg, #2563eb, #1d4ed8);
             }
             
