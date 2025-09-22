@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEPAL - PDF Stampabili</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: rgba(180, 83, 255, 0.55);
+            --secondary-glow: rgba(0, 191, 255, 0.6);
+            --bg-color: #12121c;
+            --surface-color: rgba(23, 23, 35, 0.85);
+            --text-color: #e0e0e0;
+            --accent-color: #b453ff;
+            --accent-hover: #c879ff;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: var(--text-color);
+            padding: clamp(10px, 3vw, 20px);
+            overflow-x: hidden;
+        }
+
+        .print-controls {
+            text-align: center;
+            background-color: var(--surface-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: clamp(15px, 4vw, 25px);
+            border-radius: clamp(15px, 4vw, 20px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: clamp(20px, 5vw, 30px);
+            max-width: clamp(320px, 90vw, 800px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .print-controls h2 {
+            color: var(--accent-color);
+            font-size: clamp(1.8em, 6vw, 2.2em);
+            font-weight: 700;
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .print-controls p {
+            color: #b0b0b0;
+            font-size: clamp(1em, 3.5vw, 1.1em);
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        .print-btn {
+            background: linear-gradient(90deg, var(--accent-color), var(--secondary-glow));
+            color: white;
+            border: none;
+            padding: clamp(12px, 3vw, 16px) clamp(24px, 6vw, 30px);
+            font-size: clamp(1em, 4vw, 1.1em);
+            font-weight: bold;
+            border-radius: clamp(8px, 2vw, 10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .print-btn:hover {
+            background: linear-gradient(90deg, var(--accent-hover), var(--secondary-glow));
+            box-shadow: 0 0 25px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Pages for display */
+        .page {
+            width: 100%;
+            max-width: clamp(320px, 90vw, 800px);
+            margin: 0 auto clamp(20px, 5vw, 40px) auto;
+            background-color: var(--surface-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: clamp(15px, 4vw, 20px);
+            padding: clamp(20px, 5vw, 40px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page.light {
+            background: linear-gradient(135deg, #f5f7fa, #e8eef7);
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #1a202c;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            width: clamp(80px, 15vw, 120px);
+            height: auto;
+            max-height: clamp(60px, 12vw, 90px);
+            object-fit: contain;
+            display: block;
+            margin: 0 auto clamp(15px, 4vw, 25px) auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: clamp(15px, 4vw, 25px);
+            font-size: clamp(1.8em, 6vw, 2.5em);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .light h1 {
+            color: #3a86ff;
+        }
+
+        .intro {
+            font-size: clamp(1em, 3.5vw, 1.2em);
+            margin-bottom: clamp(25px, 6vw, 35px);
+            line-height: 1.6;
+            color: #b0b0b0;
+        }
+
+        .light .intro {
+            color: #4a5568;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: clamp(15px, 4vw, 25px);
+            margin-top: clamp(20px, 5vw, 30px);
+        }
+
+        @media (min-width: 600px) {
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .feature {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: clamp(12px, 3vw, 15px);
+            padding: clamp(18px, 5vw, 25px);
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light .feature {
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+
+        .feature h3 {
+            color: var(--accent-color);
+            margin-bottom: clamp(8px, 2vw, 12px);
+            font-size: clamp(1.1em, 4vw, 1.3em);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .light .feature h3 {
+            color: #3a86ff;
+        }
+
+        .feature p {
+            line-height: 1.5;
+            font-size: clamp(0.9em, 3vw, 1em);
+            color: #ccc;
+        }
+
+        .light .feature p {
+            color: #4a5568;
+        }
+
+        /* Bilingual styles */
+        .bilingual .intro {
+            text-align: left;
+        }
+
+        .bilingual .lang-section {
+            margin-bottom: clamp(15px, 4vw, 20px);
+        }
+
+        .bilingual .lang-label {
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: clamp(5px, 1vw, 8px);
+            display: block;
+            color: var(--accent-color);
+        }
+
+        .light .bilingual .lang-label {
+            color: #3a86ff;
+        }
+
+        .bilingual .feature p {
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .bilingual .feature p:last-child {
+            margin-bottom: 0;
+        }
+
+        .bilingual .feature p strong {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .light .bilingual .feature p strong {
+            color: #3a86ff;
+        }
+
+        /* Stili compatti per pagine bilingue */
+        .bilingual .logo {
+            width: clamp(60px, 12vw, 80px);
+            max-height: clamp(45px, 9vw, 60px);
+            margin-bottom: clamp(10px, 2vw, 15px);
+        }
+
+        .bilingual h1 {
+            font-size: clamp(1.6em, 5vw, 2.2em);
+            margin-bottom: clamp(12px, 3vw, 18px);
+        }
+
+        .bilingual .intro {
+            font-size: clamp(0.85em, 2.5vw, 1em);
+            margin-bottom: clamp(15px, 3vw, 20px);
+        }
+
+        .bilingual .lang-section {
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .bilingual .features {
+            gap: clamp(10px, 2.5vw, 15px);
+            margin-top: clamp(15px, 3vw, 20px);
+        }
+
+        .bilingual .feature {
+            padding: clamp(12px, 3vw, 18px);
+        }
+
+        .bilingual .feature h3 {
+            font-size: clamp(0.95em, 3vw, 1.1em);
+            margin-bottom: clamp(6px, 1.5vw, 8px);
+        }
+
+        .bilingual .feature p {
+            font-size: clamp(0.8em, 2.2vw, 0.9em);
+            line-height: 1.3;
+            margin-bottom: clamp(4px, 1vw, 6px);
+        }
+
+        /* Print styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            @page {
+                margin: 0 !important;
+                size: A4;
+            }
+
+            html, body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-family: 'Poppins', sans-serif !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .print-controls {
+                display: none !important;
+            }
+
+            .page {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 20pt !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                page-break-after: always;
+                min-height: 100vh;
+                animation: none !important;
+                border: none !important;
+                min-width: 600px !important;
+            }
+
+            .page:last-child {
+                page-break-after: avoid;
+            }
+
+            /* Dark pages */
+            .page:not(.light) {
+                background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+                color: #e0e0e0 !important;
+            }
+
+            .page:not(.light) h1 {
+                color: #b453ff !important;
+            }
+
+            .page:not(.light) .intro {
+                color: #b0b0b0 !important;
+            }
+
+            .page:not(.light) .feature {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                border: 1pt solid rgba(255, 255, 255, 0.2) !important;
+            }
+
+            .page:not(.light) .feature h3 {
+                color: #b453ff !important;
+            }
+
+            .page:not(.light) .feature p {
+                color: #cccccc !important;
+            }
+
+            .page:not(.light) .bilingual .lang-label,
+            .page:not(.light) .bilingual .feature p strong {
+                color: #b453ff !important;
+            }
+
+            /* Light pages */
+            .page.light {
+                background: linear-gradient(135deg, #f5f7fa, #e8eef7) !important;
+                color: #1a202c !important;
+            }
+
+            .page.light h1 {
+                color: #3a86ff !important;
+            }
+
+            .page.light .intro {
+                color: #4a5568 !important;
+            }
+
+            /* Force 2x2 grid layout in print for all sizes */
+            .page .features {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 20pt !important;
+                display: grid !important;
+            }
+
+            .page.light .feature {
+                background-color: rgba(255, 255, 255, 0.8) !important;
+                border: 1pt solid rgba(0, 0, 0, 0.15) !important;
+            }
+
+            .page.light .feature h3 {
+                color: #3a86ff !important;
+            }
+
+            .page.light .feature p {
+                color: #4a5568 !important;
+            }
+
+            /* Stili extra compatti per pagine bilingue in stampa */
+            .page.bilingual .logo {
+                width: 60pt !important;
+                max-height: 45pt !important;
+                margin-bottom: 8pt !important;
+            }
+
+            .page.bilingual h1 {
+                font-size: 18pt !important;
+                margin-bottom: 10pt !important;
+                line-height: 1.2 !important;
+            }
+
+            .page.bilingual .intro {
+                font-size: 9pt !important;
+                margin-bottom: 12pt !important;
+            }
+
+            .page.bilingual .lang-section {
+                margin-bottom: 6pt !important;
+            }
+
+            .page.bilingual .features {
+                gap: 8pt !important;
+                margin-top: 12pt !important;
+            }
+
+            .page.bilingual .feature {
+                padding: 10pt !important;
+            }
+
+            .page.bilingual .feature h3 {
+                font-size: 10pt !important;
+                margin-bottom: 4pt !important;
+                line-height: 1.2 !important;
+            }
+
+            .page.bilingual .feature p {
+                font-size: 8pt !important;
+                line-height: 1.2 !important;
+                margin-bottom: 3pt !important;
+            }
+
+            .page.light .bilingual .lang-label,
+            .page.light .bilingual .feature p strong {
+                color: #3a86ff !important;
+            }
+
+            .logo {
+                width: 100pt !important;
+                height: auto !important;
+                max-height: 80pt !important;
+                margin-bottom: 25pt !important;
+                filter: none !important;
+            }
+
+            h1 {
+                font-size: 28pt !important;
+                margin-bottom: 25pt !important;
+                page-break-after: avoid;
+                font-weight: 700 !important;
+            }
+
+            .intro {
+                font-size: 13pt !important;
+                margin-bottom: 30pt !important;
+                line-height: 1.6 !important;
+            }
+
+            .features {
+                margin-top: 30pt !important;
+                gap: 20pt !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .feature {
+                padding: 20pt !important;
+                page-break-inside: avoid;
+                border-radius: 10pt !important;
+            }
+
+            .feature h3 {
+                font-size: 15pt !important;
+                margin-bottom: 12pt !important;
+                font-weight: 600 !important;
+                page-break-after: avoid;
+            }
+
+            .feature p {
+                font-size: 11pt !important;
+                line-height: 1.5 !important;
+            }
+
+            .bilingual .lang-section {
+                margin-bottom: 20pt !important;
+            }
+
+            .bilingual .lang-label {
+                font-size: 13pt !important;
+                margin-bottom: 8pt !important;
+                font-weight: 600 !important;
+            }
+
+            .bilingual .feature p {
+                margin-bottom: 10pt !important;
+            }
+
+            .bilingual .feature p:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        /* Mobile responsivity */
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .page {
+                padding: clamp(15px, 4vw, 25px) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls">
+        <h2>📄 TEPAL - PDF Stampabili</h2>
+        <p>6 versioni con lo stile del quiz - pronte per la stampa</p>
+        <button class="print-btn" onclick="window.print()">🖨️ Stampa Tutte le Versioni PDF</button>
+    </div>
+
+    <!-- 1. ITALIANO SCURO -->
+    <div class="page">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>Cos'è TEPAL?</h1>
+        <div class="intro">
+            Significa "Tecniche della Prevenzione nell'Ambiente e nei Luoghi di Lavoro". In pratica, è il corso per diventare i supereroi della sicurezza, quelli che evitano che il tuo collega usi una forchetta per sbloccare la stampante.
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Scovare i Pericoli</h3>
+                <p>Imparerai a riconoscere un rischio prima che diventi un meme su internet. Dalla sedia da ufficio instabile alla sostanza chimica dal nome impronunciabile.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Progettare la Sicurezza</h3>
+                <p>Non solo individui i problemi, ma crei le soluzioni. Diventerai un architetto che costruisce fortezze contro gli infortuni e le figuracce.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Comunicare da Pro</h3>
+                <p>Svilupperai l'arte di convincere chiunque a indossare l'elmetto, trasformando la noiosa formazione in un evento quasi divertente.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Dominare le Norme</h3>
+                <p>Sì, c'è la burocrazia. Ma la padroneggerai per navigare nel mondo del lavoro come un capitano esperto, evitando multe e guai legali.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ITALIANO CHIARO -->
+    <div class="page light">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>Cos'è TEPAL?</h1>
+        <div class="intro">
+            Significa "Tecniche della Prevenzione nell'Ambiente e nei Luoghi di Lavoro". In pratica, è il corso per diventare i supereroi della sicurezza, quelli che evitano che il tuo collega usi una forchetta per sbloccare la stampante.
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Scovare i Pericoli</h3>
+                <p>Imparerai a riconoscere un rischio prima che diventi un meme su internet. Dalla sedia da ufficio instabile alla sostanza chimica dal nome impronunciabile.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Progettare la Sicurezza</h3>
+                <p>Non solo individui i problemi, ma crei le soluzioni. Diventerai un architetto che costruisce fortezze contro gli infortuni e le figuracce.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Comunicare da Pro</h3>
+                <p>Svilupperai l'arte di convincere chiunque a indossare l'elmetto, trasformando la noiosa formazione in un evento quasi divertente.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Dominare le Norme</h3>
+                <p>Sì, c'è la burocrazia. Ma la padroneggerai per navigare nel mondo del lavoro come un capitano esperto, evitando multe e guai legali.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. INGLESE SCURO -->
+    <div class="page">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>What is TEPAL?</h1>
+        <div class="intro">
+            It stands for "Techniques of Prevention in the Environment and Workplaces". Basically, it's the degree to become safety superheroes, the ones who stop your colleague from using a fork to unjam the printer.
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Spotting Dangers</h3>
+                <p>You'll learn to recognize a risk before it becomes an internet meme. From a wobbly office chair to a chemical with an unpronounceable name.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Designing Safety</h3>
+                <p>You don't just find problems; you create solutions. You'll become an architect who builds fortresses against accidents and embarrassments.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Communicating Like a Pro</h3>
+                <p>You'll develop the art of convincing anyone to wear a helmet, turning boring training sessions into something almost fun.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Mastering Regulations</h3>
+                <p>Yes, there's bureaucracy. But you'll master it to navigate the professional world like a seasoned captain, avoiding fines and legal trouble.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. INGLESE CHIARO -->
+    <!-- 4. INGLESE CHIARO -->
+    <div class="page light">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>What is TEPAL?</h1>
+        <div class="intro">
+            It stands for "Techniques of Prevention in the Environment and Workplaces". Basically, it's the degree to become safety superheroes, the ones who stop your colleague from using a fork to unjam the printer.
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Spotting Dangers</h3>
+                <p>You'll learn to recognize a risk before it becomes an internet meme. From a wobbly office chair to a chemical with an unpronounceable name.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Designing Safety</h3>
+                <p>You don't just find problems; you create solutions. You'll become an architect who builds fortresses against accidents and embarrassments.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Communicating Like a Pro</h3>
+                <p>You'll develop the art of convincing anyone to wear a helmet, turning boring training sessions into something almost fun.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Mastering Regulations</h3>
+                <p>Yes, there's bureaucracy. But you'll master it to navigate the professional world like a seasoned captain, avoiding fines and legal trouble.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. BILINGUE SCURO -->
+    <div class="page bilingual">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>Cos'è TEPAL? | What is TEPAL?</h1>
+        <div class="intro">
+            <div class="lang-section">
+                <span class="lang-label">🇮🇹 ITALIANO:</span>
+                Significa "Tecniche della Prevenzione nell'Ambiente e nei Luoghi di Lavoro". In pratica, è il corso per diventare i supereroi della sicurezza, quelli che evitano che il tuo collega usi una forchetta per sbloccare la stampante.
+            </div>
+            <div class="lang-section">
+                <span class="lang-label">🇬🇧 ENGLISH:</span>
+                It stands for "Techniques of Prevention in the Environment and Workplaces". Basically, it's the degree to become safety superheroes, the ones who stop your colleague from using a fork to unjam the printer.
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Scovare i Pericoli | Spotting Dangers</h3>
+                <p><strong>🇮🇹</strong> Imparerai a riconoscere un rischio prima che diventi un meme su internet. Dalla sedia da ufficio instabile alla sostanza chimica dal nome impronunciabile.</p>
+                <p><strong>🇬🇧</strong> You'll learn to recognize a risk before it becomes an internet meme. From a wobbly office chair to a chemical with an unpronounceable name.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Progettare la Sicurezza | Designing Safety</h3>
+                <p><strong>🇮🇹</strong> Non solo individui i problemi, ma crei le soluzioni. Diventerai un architetto che costruisce fortezze contro gli infortuni e le figuracce.</p>
+                <p><strong>🇬🇧</strong> You don't just find problems; you create solutions. You'll become an architect who builds fortresses against accidents and embarrassments.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Comunicare da Pro | Communicating Like a Pro</h3>
+                <p><strong>🇮🇹</strong> Svilupperai l'arte di convincere chiunque a indossare l'elmetto, trasformando la noiosa formazione in un evento quasi divertente.</p>
+                <p><strong>🇬🇧</strong> You'll develop the art of convincing anyone to wear a helmet, turning boring training sessions into something almost fun.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Dominare le Norme | Mastering Regulations</h3>
+                <p><strong>🇮🇹</strong> Sì, c'è la burocrazia. Ma la padroneggerai per navigare nel mondo del lavoro come un capitano esperto, evitando multe e guai legali.</p>
+                <p><strong>🇬🇧</strong> Yes, there's bureaucracy. But you'll master it to navigate the professional world like a seasoned captain, avoiding fines and legal trouble.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. BILINGUE CHIARO -->
+    <div class="page bilingual light">
+        <img src="LOGO-Universita-degli-Studi-dellAquila.png" alt="Univaq Logo" class="logo">
+        <h1>Cos'è TEPAL? | What is TEPAL?</h1>
+        <div class="intro">
+            <div class="lang-section">
+                <span class="lang-label">🇮🇹 ITALIANO:</span>
+                Significa "Tecniche della Prevenzione nell'Ambiente e nei Luoghi di Lavoro". In pratica, è il corso per diventare i supereroi della sicurezza, quelli che evitano che il tuo collega usi una forchetta per sbloccare la stampante.
+            </div>
+            <div class="lang-section">
+                <span class="lang-label">🇬🇧 ENGLISH:</span>
+                It stands for "Techniques of Prevention in the Environment and Workplaces". Basically, it's the degree to become safety superheroes, the ones who stop your colleague from using a fork to unjam the printer.
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <h3>🕵️ Scovare i Pericoli | Spotting Dangers</h3>
+                <p><strong>🇮🇹</strong> Imparerai a riconoscere un rischio prima che diventi un meme su internet. Dalla sedia da ufficio instabile alla sostanza chimica dal nome impronunciabile.</p>
+                <p><strong>🇬🇧</strong> You'll learn to recognize a risk before it becomes an internet meme. From a wobbly office chair to a chemical with an unpronounceable name.</p>
+            </div>
+            <div class="feature">
+                <h3>🏗️ Progettare la Sicurezza | Designing Safety</h3>
+                <p><strong>🇮🇹</strong> Non solo individui i problemi, ma crei le soluzioni. Diventerai un architetto che costruisce fortezze contro gli infortuni e le figuracce.</p>
+                <p><strong>🇬🇧</strong> You don't just find problems; you create solutions. You'll become an architect who builds fortresses against accidents and embarrassments.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Comunicare da Pro | Communicating Like a Pro</h3>
+                <p><strong>🇮🇹</strong> Svilupperai l'arte di convincere chiunque a indossare l'elmetto, trasformando la noiosa formazione in un evento quasi divertente.</p>
+                <p><strong>🇬🇧</strong> You'll develop the art of convincing anyone to wear a helmet, turning boring training sessions into something almost fun.</p>
+            </div>
+            <div class="feature">
+                <h3>📋 Dominare le Norme | Mastering Regulations</h3>
+                <p><strong>🇮🇹</strong> Sì, c'è la burocrazia. Ma la padroneggerai per navigare nel mondo del lavoro come un capitano esperto, evitando multe e guai legali.</p>
+                <p><strong>🇬🇧</strong> Yes, there's bureaucracy. But you'll master it to navigate the professional world like a seasoned captain, avoiding fines and legal trouble.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Controlla se aperto dall'app e mostra solo la versione appropriata
+        function handleAppView() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const lang = urlParams.get('lang');
+            const fromApp = urlParams.get('from') === 'app';
+            
+            if (fromApp && lang) {
+                // Nascondi tutte le pagine
+                const allPages = document.querySelectorAll('.page');
+                allPages.forEach(page => page.style.display = 'none');
+                
+                // Nascondi i controlli di stampa
+                const printControls = document.querySelector('.print-controls');
+                if (printControls) printControls.style.display = 'none';
+                
+                // Determina quale pagina mostrare basandosi sulla lingua
+                let pageToShow;
+                if (lang === 'it') {
+                    // Mostra italiano scuro
+                    pageToShow = document.querySelector('.page:not(.light):not(.bilingual)');
+                } else if (lang === 'en') {
+                    // Mostra inglese scuro
+                    const englishPages = Array.from(document.querySelectorAll('.page:not(.light):not(.bilingual)')).filter(page => 
+                        page.querySelector('h1') && page.querySelector('h1').textContent.includes('What is TEPAL?')
+                    );
+                    pageToShow = englishPages[0];
+                }
+                
+                // Mostra la pagina selezionata
+                if (pageToShow) {
+                    pageToShow.style.display = 'block';
+                    pageToShow.style.minHeight = '100vh';
+                    
+                    // Aggiungi pulsante Back in alto
+                    const backBtn = document.createElement('div');
+                    backBtn.innerHTML = `
+                        <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+                            <button onclick="window.close()" style="
+                                background: linear-gradient(90deg, #6b7280, #4b5563);
+                                color: white;
+                                border: none;
+                                padding: 10px 16px;
+                                border-radius: 8px;
+                                font-family: 'Poppins', sans-serif;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                font-size: 14px;
+                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                ← ${lang === 'it' ? 'Torna al Quiz' : 'Back to Quiz'}
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(backBtn);
+                    
+                    // Aggiungi un pulsante per vedere tutte le versioni
+                    const fullVersionBtn = document.createElement('div');
+                    fullVersionBtn.innerHTML = `
+                        <div style="text-align: center; margin-top: 30px; padding: 20px;">
+                            <button onclick="window.open('tepal_simple.html', '_blank')" style="
+                                background: linear-gradient(90deg, #b453ff, #9333ea);
+                                color: white;
+                                border: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                font-family: 'Poppins', sans-serif;
+                                font-weight: 600;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                box-shadow: 0 4px 15px rgba(180, 83, 255, 0.3);
+                            ">
+                                📄 ${lang === 'it' ? 'Vedi Tutte le Versioni PDF' : 'View All PDF Versions'}
+                            </button>
+                        </div>
+                    `;
+                    pageToShow.appendChild(fullVersionBtn);
+                }
+            }
+        }
+        
+        // Esegui quando la pagina è caricata
+        document.addEventListener('DOMContentLoaded', handleAppView);
+    </script>
+
+</body>
+</html>
